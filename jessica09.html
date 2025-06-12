@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personajes</title>
+    <title>Proyecto Final</title>
   <style>
 @import url('https://fonts.cdnfonts.com/css/brilliant-christmas');
 *{
@@ -146,13 +146,12 @@
   </nav>
 </head>
 <body>
-
     <style>
         *{
             box-sizing: border-box;
         }
         :root{
-            --color-primero: rgb(230, 210, 255);
+            --color-primero: #e6d2ff;
             --color-segundo: #412234;
             --color-tercero: #6D466B;
             --color-cuarto: #6D466B;
@@ -226,7 +225,7 @@
             margin-top: 0;
         }
         .overview{
-            background-color: var(--color-segundo);
+            background-color: var(--color-cuarto);
             padding: 15px;
             position: absolute;
             left: 0;
@@ -240,60 +239,88 @@
         .personaje:hover .overview{
             transform: translateY(0);
         }
+
     </style>
 
     <header>
         <form id="form">
-            <img src="dbz.jpg" alt="logo" class="logo" style="width: 130px; height: 50px;">
+            <img src="logop.jpg" alt="logo" class="logo" style="width: 50px; height: 50px;">
             <input type="text" id="search" class="search" placeholder="Busca tu película"></form>
     </header>
     <main id="main"></main>
 
-    <script>
-        const API_URL = 'https://dragonball-api.com/api/characters';
-        const main = document.getElementById('main');
-        const form = document.getElementById('form');
-        const search = document.getElementById('search');
-        
-        getCharacters(API_URL)
-            async function getCharacters(url){
-             const res = await fetch(url);
-             const data = await res.json();
-             showCharacters (data.items || data);
-        }
-        function showCharacters(characters){
-            main.innerHTML = '';
-            characters.forEach((char) => {
-                    const {id, name, image, ki, maxKi, race, gender, description} = char;
-                    const charElement = document.createElement('div');
-                    charElement.classList.add('personaje');
-                    charElement.innerHTML = `
-                    <img src ="${image}" alt="${image}">
-                    <div class="personaje-info">
-                        <h1>${id}</h1>
-                        <h3>${name}</h3>
-                        <br>
-                        ${race}
-                            </div>
-                            <div class = "overview">
-                                <h3>Descripción</h3>
-                                <p><strong>Ki: </strong>${ki}</p>
-                                <p><strong>maxKi: </strong>${maxKi}</p>
-                                ${description}
-                                </div>`
-                        main.appendChild(charElement);
-            })}
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault()
-                    const searchTerm = search.value.toLowerCase();
-                    if(searchTerm && searchTerm !== ''){
-                        getCharacters(API_URL + `?name=${searchTerm}`)
-                         search.value='';
-                    }else{ 
-                        window.location.reload();
-                    }
-                })
-    </script>
+<script>
+const RM_URL = 'https://rickandmortyapi.com/api/character';
+const HP_URL = 'https://hp-api.onrender.com/api/characters';
+
+const main = document.getElementById('main');
+const form = document.getElementById('form');
+const search = document.getElementById('search');
+
+getCharacters();
+
+async function getCharacters() {
+const [resRM, resHP] = await Promise.all([
+fetch(RM_URL).then(res => res.json()),
+fetch(HP_URL).then(res => res.json())
+]);
+
+const rm = resRM.results || [];
+const hp = resHP || [];
+
+showCharacters([...rm, ...hp]);
+}
+
+function showCharacters(characters) {
+main.innerHTML = '';
+
+characters.forEach((char) => {
+let name = char.name || 'Desconocido';
+let gender = char.gender || 'No especificado';
+let species = char.species || 'Desconocida';
+let image = char.image || '';
+let dateOfBirth = char.dateOfBirth || 'Desconocido';
+let status = char.status || (char.alive === false ? 'Deceased' : 'Alive');
+let house = char.house || 'Desconocido';
+let actor = char.actor || 'Desconocido';
+
+const charElement = document.createElement('div');
+charElement.classList.add('personaje');
+
+charElement.innerHTML = `
+<img src="${image}" alt="${name}">
+
+<div class="personaje-info">
+<h3>${name}</h3>
+<br>${gender}
+</div>
+<div class="overview">
+<h3>Descripción</h3>
+<p><strong>Actor: </strong>${actor}</p>
+<p><strong>Estado: </strong>${status}</p>
+<p><strong>Casa: </strong>${house}</p>
+<p><strong>Especie: </strong>${species}</p>
+
+</div>
+`;
+
+main.appendChild(charElement);
+})}
+
+form.addEventListener('submit', async (e) => {
+e.preventDefault();
+const searchTerm = search.value.toLowerCase();
+
+if (searchTerm && searchTerm !== '') {
+  getCharacters(RM_URL + `?name=${searchTerm}`)
+    getCharacters(HP_URL + `?name=${searchTerm}`)
+  
+search.value = '';
+} else {
+window.location.reload();
+}
+});
+</script>
 
 </body>
 </html>
